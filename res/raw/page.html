@@ -1,0 +1,45 @@
+<html>
+<head>
+<style type="text/css">
+table.board {border: solid black 1px;}
+table.board td {
+	width:50px;height:50px;
+	font-size:24pt;border: solid black 1px;text-align:center;
+}
+#timer {
+	font-size:12pt;text-align:center;
+	margin:5px;
+}
+</style>
+</head>
+<body>
+<center>
+<table class='board'>
+	<tr><td>$00</td><td>$01</td><td>$02</td><td>$03</td></tr>
+	<tr><td>$10</td><td>$11</td><td>$12</td><td>$13</td></tr>
+	<tr><td>$20</td><td>$21</td><td>$22</td><td>$23</td></tr>
+	<tr><td>$30</td><td>$31</td><td>$32</td><td>$33</td></tr>	
+</table>
+</center>
+
+<div id='timer'></div>
+
+<script>
+var startTime;
+var timer = document.getElementById('timer');
+function startTimer() {
+	var timeLeft = 60*1000*3;
+	startTime = new Date().getTime();
+	timer.innerHTML = (timeLeft/1000);
+	setTimeout("runTimer();", 100);
+}
+function runTimer() {
+	var timeLeft = 60*1000 - (new Date().getTime()) + startTime;
+	timer.innerHTML = Math.floor(timeLeft/1000);
+	if (timeLeft>0) setTimeout("runTimer();", 100);
+	else timer.innerHTML = 'TIME UP';
+}
+startTimer();
+</script>
+</body>
+</html>

@@ -1,8 +1,14 @@
 package winterwell.wordsquare;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
+import winterwell.utils.io.FileUtils;
+
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -10,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,12 +32,13 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
         webview = new WebView(this);
-        
+        WebSettings webSettings = webview.getSettings();
+        webSettings.setJavaScriptEnabled(true);
         setContentView(webview);
         //countdown = (TextView) findViewById(R.id.countdown);
 //        timerBar = (ProgressBar) findViewById(R.id.timerBar);
 //        setContentView(R.layout.main);
-        // Start a new game
+        // Start a new game        
         doNewGame();
     }
 
@@ -40,18 +48,21 @@ public class MainActivity extends Activity {
 	private void doNewGame() {
 		int wh = 4;
 		List<Character> letters = dice.pickLetters(4*4);
-		// TODO load from a file
-		String html = "<html><style>table.board {border: solid black 1px;}"
-				+"table.board td {width:50px;height:50px;font-size: 24pt;border: solid black 1px;text-align:center;}"
-			    +"</style><table class='board'>";
-		for(int i=0; i<wh; i++) {
-			html += "<tr>";
-			for(int j=0; j<wh; j++) {
-				html += "<td>"+letters.get(i*wh + j)+"</td>";
-			}
-			html += "</tr>";
+		// load from a file		
+		String html;
+		try {
+			ContentResolver cr = getContentResolver();		
+			InputStream in = cr.openInputStream(
+					Uri.parse("android.resource://winterwell.wordsquare/"+R.raw.page));			
+			html = FileUtils.read(in);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		html += "</table></html>";
+		for(int i=0; i<wh; i++) {			
+			for(int j=0; j<wh; j++) {
+				html = html.replace("$"+i+j, ""+letters.get(i*wh + j));
+			}
+		}
 		webview.loadData(html, "text/html", "utf-8");
 		
 		if (true) return;
