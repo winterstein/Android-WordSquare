@@ -67,6 +67,7 @@ public class MainActivity extends Activity {
 			}
 		}
 		webview.loadData(html, "text/html", "utf-8");
+		webview.reload();
 		Log.d(TAG, "...a new game begins!");
 		if (true) return;
 //		if (gameTimerThread != null) {
