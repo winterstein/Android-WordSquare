@@ -28,13 +28,11 @@ table.board td {
 var startTime;
 var timer = document.getElementById('timer');
 function startTimer() {
-	var timeLeft = 60*1000*3;
 	startTime = new Date().getTime();
-	timer.innerHTML = (timeLeft/1000);
 	setTimeout("runTimer();", 100);
 }
 function runTimer() {
-	var timeLeft = 60*1000 - (new Date().getTime()) + startTime;
+	var timeLeft = 60*1000*3 - (new Date().getTime()) + startTime;
 	timer.innerHTML = Math.floor(timeLeft/1000);
 	if (timeLeft>0) setTimeout("runTimer();", 100);
 	else timer.innerHTML = 'TIME UP';

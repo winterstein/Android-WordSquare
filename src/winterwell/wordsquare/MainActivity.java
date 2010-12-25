@@ -24,6 +24,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
     private static final String TAG = "WORDSQUARE";
 	private WebView webview;
+	private String baseHtml;
 //	private TextView countdown;
 //	private ProgressBar timerBar;
 
@@ -38,6 +39,15 @@ public class MainActivity extends Activity {
         //countdown = (TextView) findViewById(R.id.countdown);
 //        timerBar = (ProgressBar) findViewById(R.id.timerBar);
 //        setContentView(R.layout.main);
+		try {
+			ContentResolver cr = getContentResolver();		
+			InputStream in = cr.openInputStream(
+					Uri.parse("android.resource://winterwell.wordsquare/"+R.raw.page));			
+			baseHtml = FileUtils.read(in);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
         // Start a new game        
         doNewGame();
     }
@@ -46,25 +56,18 @@ public class MainActivity extends Activity {
 //	Thread gameTimerThread;
     
 	private void doNewGame() {
+		Log.d(TAG, "doNewGame...");
 		int wh = 4;
-		List<Character> letters = dice.pickLetters(4*4);
-		// load from a file		
-		String html;
-		try {
-			ContentResolver cr = getContentResolver();		
-			InputStream in = cr.openInputStream(
-					Uri.parse("android.resource://winterwell.wordsquare/"+R.raw.page));			
-			html = FileUtils.read(in);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		List<Character> letters = dice.pickLetters(wh*wh);
+		// load from a file
+		String html = baseHtml;
 		for(int i=0; i<wh; i++) {			
 			for(int j=0; j<wh; j++) {
 				html = html.replace("$"+i+j, ""+letters.get(i*wh + j));
 			}
 		}
 		webview.loadData(html, "text/html", "utf-8");
-		
+		Log.d(TAG, "...a new game begins!");
 		if (true) return;
 //		if (gameTimerThread != null) {
 //			gameTimerThread.stop();
