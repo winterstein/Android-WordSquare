@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, MainActivity!</string>
-    <string name="app_name">OpenWordSquare</string>
+    <string name="app_name">WordSquare</string>
+    <string name="activity_name">Open Word Square by Winterwell</string>
+    
+    <string name="title_board_size_pref">Board Size</string>
+    <string name="dialog_title_board_size_pref">Board Size</string>
+    <string name="summary_board_size_pref">Set the size of game board.</string>
+    
+    <string name="title_game_length_pref">Game Length</string>
 </resources>

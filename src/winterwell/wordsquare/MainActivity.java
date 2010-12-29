@@ -2,19 +2,28 @@ package winterwell.wordsquare;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 import winterwell.utils.io.FileUtils;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -22,43 +31,54 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String TAG = "WORDSQUARE";
+    static final String TAG = "WORDSQUARE";
 	private WebView webview;
 	private String baseHtml;
+	private MediaPlayer mediaPlayer;
 //	private TextView countdown;
 //	private ProgressBar timerBar;
 
 	/** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);        
+    public void onCreate(Bundle savedInstanceState) {    	
+        super.onCreate(savedInstanceState);             
+        
         webview = new WebView(this);
+        webview.setBackgroundColor(Color.BLACK);
+        webview.setKeepScreenOn(true);
         WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setLoadsImagesAutomatically(true);
+//      TODO sound support webview.addJavascriptInterface(obj, interfaceName);
         setContentView(webview);
-        //countdown = (TextView) findViewById(R.id.countdown);
-//        timerBar = (ProgressBar) findViewById(R.id.timerBar);
-//        setContentView(R.layout.main);
 		try {
+	//		AssetManager am = new AssetManager();
 			ContentResolver cr = getContentResolver();		
 			InputStream in = cr.openInputStream(
 					Uri.parse("android.resource://winterwell.wordsquare/"+R.raw.page));			
-			baseHtml = FileUtils.read(in);
+			baseHtml = FileUtils.read(in);			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	
+//		SoundEffectConstants.CLICK;
+		mediaPlayer = MediaPlayer.create(this, R.raw.alarm_clock_1);	
 
         // Start a new game        
         doNewGame();
     }
 
-    EnglishDice dice = new EnglishDice();
-//	Thread gameTimerThread;
-    
 	private void doNewGame() {
+		mediaPlayer.reset();
 		Log.d(TAG, "doNewGame...");
-		int wh = 4;
-		List<Character> letters = dice.pickLetters(wh*wh);
+		// fresh settings per game
+		SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(this);
+        Map<String, ?> prefs = ps.getAll();
+        GameSettings settings = new GameSettings(prefs);
+	    
+		int wh = settings.boardSize;
+		List<Character> letters = settings.dice.pickLetters(wh*wh);
 		// load from a file
 		String html = baseHtml;
 		for(int i=0; i<wh; i++) {			
@@ -66,42 +86,17 @@ public class MainActivity extends Activity {
 				html = html.replace("$"+i+j, ""+letters.get(i*wh + j));
 			}
 		}
-		webview.loadData(html, "text/html", "utf-8");
-		webview.reload();
+		// push through settings into html
+		html = html.replaceFirst("gameTime ?= ?[0-9\\*]+;", "gameTime = "+settings.minutes+"*60*1000;");
+		html = html.replaceFirst("rotateLetters ?= ?(true|false);", "rotateLetters = "+settings.rotateLetters+";");
+//		html = URLEncoder.encode(html);
+		
+		webview.loadDataWithBaseURL("fake://not/needed", html, "text/html", "utf-8", ""); 
+//		(html, "text/html", "utf-8");
+//		webview.reload();
 		Log.d(TAG, "...a new game begins!");
-		if (true) return;
-//		if (gameTimerThread != null) {
-//			gameTimerThread.stop();
-//		}
-//		Runnable timer = new Runnable() {
-//            public void run() {
-//            	int progress = 0;
-//            	int target = 2*60*1000;
-//            	long start = System.currentTimeMillis();
-//                while (progress < 100) {
-//                	progress = (int) ((System.currentTimeMillis() - start) / target);
-//                	final int fp = progress;
-//                    // Update the progress bar
-//                    mHandler.post(new Runnable() {
-//                        public void run() {
-//                        	countdown.setText(fp);
-////							timerBar.setProgress(fp);
-//                        }
-//                    });
-//                    try {
-//						Thread.currentThread().sleep(100);
-//					} catch (InterruptedException e) {
-//					}
-//                }
-//            }
-//        };
-//		gameTimerThread = new Thread(timer);
-//		gameTimerThread.start();
 	}
 	
-
-//    private Handler mHandler = new Handler();
-
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -116,7 +111,12 @@ public class MainActivity extends Activity {
     	int id = item.getItemId();
     	if (R.id.newGame == id) {
     		doNewGame();
+    		return true;
     	}
+    	if (R.id.settings == id) {
+    		startActivity(new Intent(this, WordSquarePreferenceActivity.class));
+    		return true;
+    	}    	
     	return super.onOptionsItemSelected(item);
     }
 

@@ -1,43 +1,118 @@
 <html>
 <head>
+<script src='file:///android_asset/jquery_1.4.2.min.js'></script>
+<script src='../../assets/jquery_1.4.2.min.js'></script>
 <style type="text/css">
-table.board {border: solid black 1px;}
+#go{
+	margin-top:50px;
+	display:none;
+	/*border-radius:8px;*/
+	font-size:26pt; font-weight:bold;
+	text-align:center;
+}
+#main{display:none;}
+table.board {margin-top:50px;}
 table.board td {
-	width:50px;height:50px;
-	font-size:24pt;border: solid black 1px;text-align:center;
+	width:60px;height:60px;
+	border-radius:8px;
+	background:white;
+	font-size:26pt;font-weight:bold; border:solid black 1px;text-align:center;
+	/* -webkit-transform: rotate(-90deg); */
 }
 #timer {
-	font-size:12pt;text-align:center;
-	margin:5px;
+	width:150px;
+	font-size:14pt;
+	text-align:center;
+	background:white;
+	margin:10px;
+	padding:5px;
+	border-radius:5px;
+	border:solid black 1px;
+}
+.logo {
+	border:solid black 1px;
+	margin:10px;
+}
+body {
+	background:url('file:///android_asset/wood.png');
 }
 </style>
 </head>
 <body>
 <center>
-<table class='board'>
-	<tr><td>$00</td><td>$01</td><td>$02</td><td>$03</td></tr>
-	<tr><td>$10</td><td>$11</td><td>$12</td><td>$13</td></tr>
-	<tr><td>$20</td><td>$21</td><td>$22</td><td>$23</td></tr>
-	<tr><td>$30</td><td>$31</td><td>$32</td><td>$33</td></tr>	
-</table>
+	<img src='file:///android_asset/dice_icon.png' class='logo'><br>
+	<button id='go' onClick="go(); return false;">START</button>
 </center>
-
-<div id='timer'></div>
+<div id='main' style='width:100%;'>
+	<center>
+	<table class='board'>
+		<tr><td id='c00'>$00</td><td id='c01'>$01</td><td id='c02'>$02</td><td id='c03'>$03</td><td>$04</td></tr>
+		<tr><td id='c10'>$10</td><td id='c11'>$11</td><td id='c12'>$12</td><td id='c13'>$13</td><td>$14</td></tr>
+		<tr><td id='c20'>$20</td><td id='c21'>$21</td><td id='c22'>$22</td><td id='c23'>$23</td><td>$24</td></tr>
+		<tr><td id='c30'>$30</td><td id='c31'>$31</td><td id='c32'>$32</td><td id='c33'>$33</td><td>$34</td></tr>
+		<tr><td id='c40'>$40</td><td id='c41'>$41</td><td id='c42'>$42</td><td id='c43'>$43</td><td>$44</td></tr>
+	</table>
+	<div id='timer'></div>
+	</center>
+</div>
 
 <script>
-var startTime;
-var timer = document.getElementById('timer');
-function startTimer() {
+var size=4;
+$(function(){$('#go').fadeIn();});
+var rotateLetters = true; // $rotateLetters
+function go() {
+	$('#go').hide();
+	$('.logo').hide();
+	if (rotateLetters) {
+		for(var r=0; r<size; r++) {
+			for(var c=0; c<size; c++) {
+				var rotation = Math.floor(Math.random()*4);
+				var td = $('td#c'+r+c);
+				go2_rotateCell(td, rotation);
+			}		
+		}
+	}
+	// trim board size
+	$('td').each(function(){
+		if ($(this).text().charAt(0) == '$') {
+			$(this).remove();
+		}
+	});
+	// go
+	$('#main').fadeIn();
 	startTime = new Date().getTime();
-	setTimeout("runTimer();", 100);
+	runTimer();
 }
+function go2_rotateCell(td, rotation) {
+	console.log(rotation);
+	if (rotation==0) return;
+	var letter = td.text();
+	if (letter=='Z' || letter=='W' || letter =='M') {
+		letter = "<u>"+letter+"</u>";
+	}
+	td.html("<div>"+letter+"</div>");
+	degs = rotation*90;
+	$("div", td).css("-webkit-transform","rotate("+degs+"deg)");
+}
+
+var startTime;
+var gameTime = 3*60*1000; //$gameTime;
+var timer = document.getElementById('timer');
+
 function runTimer() {
-	var timeLeft = 60*1000*3 - (new Date().getTime()) + startTime;
-	timer.innerHTML = Math.floor(timeLeft/1000);
+	var timeLeft = gameTime - (new Date().getTime()) + startTime;
+	var secs = Math.floor(timeLeft/1000);
+	if (secs<11) {
+		timer.innerHTML = "<font color='red'><b>"+secs+"</b></font>";
+	} else {
+		timer.innerHTML = secs;
+	}
 	if (timeLeft>0) setTimeout("runTimer();", 100);
-	else timer.innerHTML = 'TIME UP';
+	else {
+		timer.innerHTML = '<b>TIME UP</b>';
+		$("td").css("color", "#aaa");
+	}
 }
-startTimer();
 </script>
 </body>
 </html>
