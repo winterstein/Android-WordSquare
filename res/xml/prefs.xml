@@ -1,0 +1,24 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"> 
+
+	<CheckBoxPreference 
+		android:key="rotate_letters" 
+		android:title="Randomly rotate letters"
+		android:summary="Show letter dice with random rotations. This is good for multiplayer games."/>
+	
+ 	<ListPreference
+           android:key="game_length_pref"
+           android:title="@string/title_game_length_pref"
+           android:entries="@array/entries_game_length_pref"
+           android:entryValues="@array/entryvalues_game_length_pref"
+           android:dialogTitle="@string/title_game_length_pref" />	
+	
+   <ListPreference
+           android:key="board_size_pref"
+           android:title="@string/title_board_size_pref"           
+           android:entries="@array/entries_board_size_pref"
+           android:entryValues="@array/entryvalues_board_size_pref"
+           android:dialogTitle="@string/dialog_title_board_size_pref" />
+
+	<CheckBoxPreference android:key="sound_pref" android:title="Sound Effects"/>
+			
+</PreferenceScreen>

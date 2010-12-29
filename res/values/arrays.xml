@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="entries_board_size_pref">
+		<item>3x3</item>
+		<item>4x4 (standard)</item>
+		<item>5x5</item>
+	</string-array>
+	<string-array name="entryvalues_board_size_pref">
+		<item>3</item>
+		<item>4</item>
+		<item>5</item>
+	</string-array>
+	
+	<string-array name="entries_game_length_pref">
+		<item>1 minute</item>
+		<item>2 minutes</item>
+		<item>3 minutes (standard)</item>
+		<item>4 minutes</item>
+	</string-array>
+	<string-array name="entryvalues_game_length_pref">
+		<item>1</item>
+		<item>2</item>
+		<item>3</item>
+		<item>4</item>
+	</string-array>
+</resources>
