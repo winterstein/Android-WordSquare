@@ -32,9 +32,11 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
     static final String TAG = "WORDSQUARE";
-	private WebView webview;
+	WebView webview;
 	private String baseHtml;
-	private MediaPlayer mediaPlayer;
+	MediaPlayer mediaPlayer;
+	private JSBridge jsBridge;
+	GameSettings settings;
 //	private TextView countdown;
 //	private ProgressBar timerBar;
 
@@ -46,6 +48,9 @@ public class MainActivity extends Activity {
         webview = new WebView(this);
         webview.setBackgroundColor(Color.BLACK);
         webview.setKeepScreenOn(true);
+        jsBridge = new JSBridge(this);
+        webview.addJavascriptInterface(jsBridge, "jsBridge");
+        webview.setSoundEffectsEnabled(true); // for the tick
         WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
@@ -62,20 +67,18 @@ public class MainActivity extends Activity {
 			throw new RuntimeException(e);
 		}
 	
-//		SoundEffectConstants.CLICK;
-		mediaPlayer = MediaPlayer.create(this, R.raw.alarm_clock_1);	
+//		SoundEffectConstants.CLICK;		
 
         // Start a new game        
         doNewGame();
     }
 
 	private void doNewGame() {
-		mediaPlayer.reset();
 		Log.d(TAG, "doNewGame...");
 		// fresh settings per game
 		SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(this);
         Map<String, ?> prefs = ps.getAll();
-        GameSettings settings = new GameSettings(prefs);
+        settings = new GameSettings(prefs);
 	    
 		int wh = settings.boardSize;
 		List<Character> letters = settings.dice.pickLetters(wh*wh);
@@ -91,10 +94,25 @@ public class MainActivity extends Activity {
 		html = html.replaceFirst("rotateLetters ?= ?(true|false);", "rotateLetters = "+settings.rotateLetters+";");
 //		html = URLEncoder.encode(html);
 		
-		webview.loadDataWithBaseURL("fake://not/needed", html, "text/html", "utf-8", ""); 
+		webview.loadDataWithBaseURL("fake://not/needed", html, "text/html", "utf-8", "");
+		
 //		(html, "text/html", "utf-8");
 //		webview.reload();
 		Log.d(TAG, "...a new game begins!");
+		
+		// sound
+		try {
+			if (mediaPlayer != null) {
+				mediaPlayer.release();
+			}
+			// TODO
+//			mediaPlayer = MediaPlayer.create(this, R.raw.alarm_clock_1);
+//			mediaPlayer.prepare();
+//			mediaPlayer.setVolume(100, 100);						
+		} catch (Exception e) {
+			Log.e(TAG, e.toString());
+			mediaPlayer = null;
+		}
 	}
 	
     
@@ -103,6 +121,14 @@ public class MainActivity extends Activity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
+    }
+    
+    @Override
+    protected void onStop() {
+    	super.onStop();
+    	if (mediaPlayer != null) {
+			mediaPlayer.release();
+		}
     }
     
     @Override

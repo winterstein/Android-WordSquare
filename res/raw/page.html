@@ -98,12 +98,17 @@ function go2_rotateCell(td, rotation) {
 var startTime;
 var gameTime = 3*60*1000; //$gameTime;
 var timer = document.getElementById('timer');
+var oldSecs = -1;
 
 function runTimer() {
 	var timeLeft = gameTime - (new Date().getTime()) + startTime;
 	var secs = Math.floor(timeLeft/1000);
 	if (secs<11) {
 		timer.innerHTML = "<font color='red'><b>"+secs+"</b></font>";
+		if (jsBridge && secs != oldSecs) {
+			jsBridge.tick();
+			oldSecs = secs;
+		}
 	} else {
 		timer.innerHTML = secs;
 	}
@@ -111,6 +116,9 @@ function runTimer() {
 	else {
 		timer.innerHTML = '<b>TIME UP</b>';
 		$("td").css("color", "#aaa");
+		if (jsBridge) {
+			jsBridge.timeUp();
+		}
 	}
 }
 </script>
