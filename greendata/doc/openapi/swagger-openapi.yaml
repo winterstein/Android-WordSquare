@@ -1,0 +1,76 @@
+{
+  "openapi" : "3.0.2",
+  "info" : {
+    "title" : "Good-Score API",
+    "description" : "Good-Score API - v0.1 alpha! You can find out more about\nGood-Score at [https://good-loop.com](good-loop.com).\n",
+    "termsOfService" : "https://doc.good-loop.com/terms/terms-of-use.html",
+    "contact" : {
+      "name" : "Support",
+      "email" : "support@good-loop.com"
+    },
+    "version" : "0.1"
+  },
+  "externalDocs" : {
+    "description" : "",
+    "url" : ""
+  },
+  "servers" : [ {
+    "url" : "https://api.good-loop.com/v0.1"
+  } ],
+  "paths" : {
+    "/csv" : {
+      "post" : {
+        "summary" : "Send a csv, and get back a carbon-scored csv",
+        "description" : "For easy processing of csvs - such as reports from a DSP.",
+        "operationId" : "csv-post",
+        "parameters" : [ {
+          "name" : "api_key",
+          "in" : "query",
+          "description" : "Your API account key must be provided with every request",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "A csv which MUST have the columns: `domain`, `format`, `country`, and can have any other columns too.",
+          "content" : {
+            "text" : {
+              "schema" : {
+                "type" : "string"
+              },
+              "examples" : {
+                "example1" : {
+                  "value" : "domain, format, country,\nexample.com, video, US"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "A copy of the input csv, with these columns added: `co2`, ..."
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : { },
+    "parameters" : {
+      "api_key" : {
+        "name" : "Your API key",
+        "in" : "query",
+        "description" : "",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
